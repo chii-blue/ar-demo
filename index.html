@@ -34,16 +34,10 @@
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
 
     <!-- ==============================================
-         検証用: まずは AR.js 標準の「Hiroマーカー」で動作確認
-         Hiroマーカー画像は下記からダウンロード・印刷してください:
-         https://github.com/AR-js-org/AR.js/blob/master/data/images/hiro.png
-
-         案2（家紋風）を使う場合は、下の <a-marker> の
-         type="pattern" preset="hiro" の部分を
-         type="pattern" url="markers/kamon-pattern.patt"
-         に差し替えてください（作り方はREADME参照）
+         家紋風マーカー（案2）を使用中
+         印刷用マーカー画像の作り方はREADME参照
          ============================================== -->
-    <a-marker preset="hiro">
+    <a-marker type="pattern" url="markers/pattern-kamon-marker.patt">
 
       <!-- 幽霊（家紋風マーカーの案2デザインに寄せた簡易モデル） -->
       <a-entity position="0 0.5 0">
