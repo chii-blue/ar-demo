@@ -33,6 +33,23 @@
 
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
 
+    <a-assets>
+      <canvas id="messageCanvas" width="1024" height="256"></canvas>
+    </a-assets>
+    <script>
+      (function () {
+        var canvas = document.getElementById('messageCanvas');
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 100px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('鏡に映る数字を数えよ', canvas.width / 2, canvas.height / 2);
+      })();
+    </script>
+
     <!-- ==============================================
          家紋風マーカー（案2）を使用中
          印刷用マーカー画像の作り方はREADME参照
@@ -46,12 +63,10 @@
         <a-sphere position="0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
       </a-entity>
 
-      <!-- 謎のメッセージ -->
-      <a-text value="鏡に映る数字を数えよ" align="center" position="0 1.2 0"
-              color="#fff" width="2.4"
-              geometry="primitive: plane; height: 0.4; width: 2"
-              material="color: #000; opacity: 0.6; shader: flat">
-      </a-text>
+      <!-- 謎のメッセージ（Canvasに描画した日本語テキストをテクスチャとして使用） -->
+      <a-plane position="0 1.2 0" width="2" height="0.5"
+               material="src: #messageCanvas; shader: flat">
+      </a-plane>
 
     </a-marker>
 
