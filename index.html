@@ -56,8 +56,13 @@
          ============================================== -->
     <a-marker type="pattern" url="markers/pattern-kamon-marker-inner.patt">
 
-      <!-- 幽霊（家紋風マーカーの案2デザインに寄せた簡易モデル） -->
-      <a-entity position="0 0.5 0">
+      <!-- 幽霊（家紋風マーカーの案2デザインに寄せた簡易モデル）
+           本体はローカルY軸方向に伸びた形状（縦長）、目はローカルZ軸方向（正面）を向く配置。
+           テキスト板と同じ理由で、そのままだと垂直マウント時に本体の伸びる向きが
+           カメラ側（頭がこちら向き）になってしまうため、rotation="-90 0 0" で
+           本体の伸びる向きをマーカーの-Z軸（垂直マウント時の「壁の上方向」）に、
+           目の正面をマーカーのY軸（常にカメラ側）に向け直している。 -->
+      <a-entity position="0 0.5 0" rotation="-90 0 0">
         <a-sphere radius="0.35" scale="1 1.286 0.857" color="#f5f2e8" opacity="0.85" material="transparent: true; shader: flat"></a-sphere>
         <a-sphere position="-0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
         <a-sphere position="0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
