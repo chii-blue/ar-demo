@@ -63,8 +63,14 @@
         <a-sphere position="0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
       </a-entity>
 
-      <!-- 謎のメッセージ（Canvasに描画した日本語テキストをテクスチャとして使用） -->
-      <a-plane position="0 1.2 0" width="2" height="0.5"
+      <!-- 謎のメッセージ（Canvasに描画した日本語テキストをテクスチャとして使用）
+           マーカーは壁に垂直（縦向き）に貼る前提。
+           a-markerのローカル座標系はY軸がマーカー面の法線（常にカメラ側を向く軸）、
+           X/Zはマーカー面内の軸。デフォルトのa-planeはZ軸方向を向いているため、
+           そのままだと平面がマーカー面と同じ向きになり、縦置き時に真横（帯状）に見えてしまう。
+           rotation="-90 0 0" でa-planeの法線をY軸（＝常にカメラ側）に向け直し、
+           垂直マウント時にテキストが正面かつ正立して見えるようにしている。 -->
+      <a-plane position="0 0.5 -1.1" rotation="-90 0 0" width="2" height="0.5"
                material="src: #messageCanvas; shader: flat">
       </a-plane>
 
