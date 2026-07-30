@@ -32,8 +32,10 @@
       position: fixed;
       inset: 0;
       z-index: 1000;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 18px;
     }
     .diary-overlay.is-visible {
       display: flex;
@@ -129,6 +131,23 @@
       text-align: center;
       white-space: pre-wrap;
     }
+    .diary-tap-hint {
+      font-family: sans-serif;
+      color: #fff;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      visibility: hidden;
+    }
+    .diary-tap-hint.is-visible {
+      visibility: visible;
+      animation: diary-tap-blink 1.2s ease-in-out infinite;
+    }
+    @keyframes diary-tap-blink {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 1; }
+    }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
@@ -149,6 +168,7 @@
         </div>
       </div>
     </div>
+    <div class="diary-tap-hint" id="diary-tap-hint">画面をタップ</div>
   </div>
 
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
@@ -169,32 +189,38 @@
       var flipPage = document.getElementById('diary-page-flip');
       var textCurrent = document.getElementById('diary-text-current');
       var textNext = document.getElementById('diary-text-next');
+      var tapHint = document.getElementById('diary-tap-hint');
       var pages = [
-        '1977年、私はある贈り物を探していた……',
-        '日記ページ2'
+        '1977年、\n私はある贈り物を探していた……',
+        '大切な方への贈り物だったのに……'
       ];
-      var flipTimer = null;
+      var tapHintTimer = null;
       var flipped = false;
 
       function showDiary() {
-        clearTimeout(flipTimer);
+        clearTimeout(tapHintTimer);
         flipped = false;
         flipPage.classList.remove('is-flipped');
+        tapHint.classList.remove('is-visible');
         textCurrent.textContent = pages[0];
         textNext.textContent = pages[1];
         overlay.classList.add('is-visible');
-        flipTimer = setTimeout(doFlip, 3000);
+        tapHintTimer = setTimeout(function () {
+          tapHint.classList.add('is-visible');
+        }, 2000);
       }
 
       function hideDiary() {
         overlay.classList.remove('is-visible');
-        clearTimeout(flipTimer);
+        tapHint.classList.remove('is-visible');
+        clearTimeout(tapHintTimer);
       }
 
       function doFlip() {
         if (flipped) return;
         flipped = true;
-        clearTimeout(flipTimer);
+        clearTimeout(tapHintTimer);
+        tapHint.classList.remove('is-visible');
         flipPage.classList.add('is-flipped');
       }
 
