@@ -44,8 +44,8 @@
     .diary-book {
       position: relative;
       width: 80vw;
-      max-width: 480px;
-      aspect-ratio: 3 / 4;
+      max-width: 640px;
+      aspect-ratio: 4 / 3;
       max-height: 80vh;
       transform-style: preserve-3d;
     }
@@ -56,13 +56,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 9%;
-      background: linear-gradient(135deg, #f6ecd8 0%, #ecdcb6 45%, #d8c093 100%);
-      box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.45),
-        inset 0 0 3px 2px rgba(101, 67, 33, 0.25),
-        inset 0 0 25px rgba(101, 67, 33, 0.18);
-      clip-path: polygon(0 0, 93% 0, 100% 7%, 100% 100%, 7% 100%, 0 93%);
+      padding: 16% 15%;
+      background-image: url('images/diary-page.png');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
       transform-origin: left center;
       backface-visibility: hidden;
     }
