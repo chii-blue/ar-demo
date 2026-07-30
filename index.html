@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@master/aframe/build/aframe-ar.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&display=swap" rel="stylesheet">
   <style>
     body { margin: 0; overflow: hidden; }
     .ui-overlay {
@@ -22,12 +25,86 @@
       font-size: 13px;
       line-height: 1.5;
     }
+
+    /* 古びた日記のページめくり演出 */
+    .diary-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .diary-overlay.is-visible {
+      display: flex;
+    }
+    .diary-perspective {
+      perspective: 1600px;
+    }
+    .diary-book {
+      position: relative;
+      width: 80vw;
+      max-width: 480px;
+      aspect-ratio: 3 / 4;
+      max-height: 80vh;
+      transform-style: preserve-3d;
+    }
+    .diary-page {
+      position: absolute;
+      inset: 0;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9%;
+      background: linear-gradient(135deg, #f6ecd8 0%, #ecdcb6 45%, #d8c093 100%);
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.45),
+        inset 0 0 3px 2px rgba(101, 67, 33, 0.25),
+        inset 0 0 25px rgba(101, 67, 33, 0.18);
+      clip-path: polygon(0 0, 93% 0, 100% 7%, 100% 100%, 7% 100%, 0 93%);
+      transform-origin: left center;
+      backface-visibility: hidden;
+    }
+    .diary-page-base {
+      z-index: 1;
+    }
+    .diary-page-flip {
+      z-index: 2;
+      transition: transform 0.6s ease-in-out;
+      cursor: pointer;
+    }
+    .diary-page-flip.is-flipped {
+      transform: rotateY(-180deg);
+    }
+    .diary-text {
+      font-family: 'Kaisei Decol', serif;
+      color: #4a3826;
+      font-size: clamp(14px, 4vw, 20px);
+      line-height: 1.9;
+      text-align: center;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
   <div class="ui-overlay">
     手がかりを見つけたら、カメラを向けてみよう。
+  </div>
+
+  <!-- 古びた日記のページめくり演出（マーカー認識時にHTML要素として重ねて表示） -->
+  <div id="diary-overlay" class="diary-overlay">
+    <div class="diary-perspective">
+      <div class="diary-book">
+        <div class="diary-page diary-page-base">
+          <div class="diary-text" id="diary-text-next"></div>
+        </div>
+        <div class="diary-page diary-page-flip" id="diary-page-flip">
+          <div class="diary-text" id="diary-text-current"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
@@ -55,18 +132,6 @@
          ============================================== -->
     <a-marker type="pattern" url="markers/pattern-kamon-marker-inner.patt">
 
-      <!-- 幽霊（家紋風マーカーの案2デザインに寄せた簡易モデル）
-           本体はローカルY軸方向に伸びた形状（縦長）、目はローカルZ軸方向（正面）を向く配置。
-           テキスト板と同じ理由で、そのままだと垂直マウント時に本体の伸びる向きが
-           カメラ側（頭がこちら向き）になってしまうため、rotation="-90 0 0" で
-           本体の伸びる向きをマーカーの-Z軸（垂直マウント時の「壁の上方向」）に、
-           目の正面をマーカーのY軸（常にカメラ側）に向け直している。 -->
-      <a-entity position="0 0.5 0" rotation="-90 0 0">
-        <a-sphere radius="0.35" scale="1 1.286 0.857" color="#f5f2e8" opacity="0.85" material="transparent: true; shader: flat"></a-sphere>
-        <a-sphere position="-0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
-        <a-sphere position="0.12 0.05 0.28" radius="0.05" color="#2b2b28"></a-sphere>
-      </a-entity>
-
       <!-- 謎のメッセージ（Canvasに描画した日本語テキストをテクスチャとして使用）
            マーカーは壁に垂直（縦向き）に貼る前提。
            a-markerのローカル座標系はY軸がマーカー面の法線（常にカメラ側を向く軸）、
@@ -82,6 +147,49 @@
 
     <a-entity camera></a-entity>
   </a-scene>
+
+  <script>
+    (function () {
+      var overlay = document.getElementById('diary-overlay');
+      var flipPage = document.getElementById('diary-page-flip');
+      var textCurrent = document.getElementById('diary-text-current');
+      var textNext = document.getElementById('diary-text-next');
+      var pages = [
+        '1977年、私はある贈り物を探していた……',
+        '日記ページ2'
+      ];
+      var flipTimer = null;
+      var flipped = false;
+
+      function showDiary() {
+        clearTimeout(flipTimer);
+        flipped = false;
+        flipPage.classList.remove('is-flipped');
+        textCurrent.textContent = pages[0];
+        textNext.textContent = pages[1];
+        overlay.classList.add('is-visible');
+        flipTimer = setTimeout(doFlip, 3000);
+      }
+
+      function hideDiary() {
+        overlay.classList.remove('is-visible');
+        clearTimeout(flipTimer);
+      }
+
+      function doFlip() {
+        if (flipped) return;
+        flipped = true;
+        clearTimeout(flipTimer);
+        flipPage.classList.add('is-flipped');
+      }
+
+      overlay.addEventListener('click', doFlip);
+
+      var markerEl = document.querySelector('a-marker');
+      markerEl.addEventListener('markerFound', showDiary);
+      markerEl.addEventListener('markerLost', hideDiary);
+    })();
+  </script>
 
 </body>
 </html>
